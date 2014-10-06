@@ -21,7 +21,7 @@ class UsersController < ApplicationController
 
   # GET /users/new
   def new
-    @user = RegularUser.new
+    @user = User.new
   end
 
   # GET /users/1/edit
@@ -31,11 +31,9 @@ class UsersController < ApplicationController
   # POST /users
   # POST /users.json
   def create
-    # @user = RegularUser.new({role: 'client'}.merge(regular_user_params))
-    @user = RegularUser.new(params[:regular_user])
+    @user = User.new({role: 'client'}.merge(user_params))
 
     if @user.save
-      session[:user_id] = @user.id
       log_in(@user)
       redirect_to user_path(@user)
     else
@@ -81,11 +79,11 @@ class UsersController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_user
-      @user = RegularUser.find(params[:id])
+      @user = User.find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
-    def regular_user_params
+    def user_params
       params.require(:user).permit(
         :name,
         :email,
@@ -103,7 +101,7 @@ class UsersController < ApplicationController
   end
 
   def load_user
-    @user = RegularUser.find_by(id: params[:id])
+    @user = User.find_by(id: params[:id])
     redirect_to root_path if !@user
   end
 

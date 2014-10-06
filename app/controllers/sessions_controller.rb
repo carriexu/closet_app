@@ -1,33 +1,21 @@
 class SessionsController < ApplicationController
-
   def new
   end
 
   def create
-    if request.env["omniauth.auth"].present?
+    user = User.find_by(email: params[:email])
 
-      oauth = OAuthUser.new(request.env["omniauth.auth"], current_user)
-      oauth.login_or_create
-      session[:user_id] = oauth.user.id
-      redirect_to(root_path)
-
+    if user && user.authenticate(params[:password])
+      log_in(user)
+      redirect_to(dashboard_path(user))
     else
-      # binding.pry
-      user = RegularUser.find_by_email(params[:email])
-      if user && user.authenticate(params[:password])
-        session[:user_id]    = user.id
-        redirect_to(root_path)
-
-      else
-        flash.now[:error] = "Invalid login credentials."
-        render action: 'new'
-      end
+      flash[:error] = "Incorrect username or password."
+      redirect_to(login_path)
     end
   end
 
   def destroy
-    session[:user_id] = nil
+    log_out!
     redirect_to(root_path)
   end
-
 end
