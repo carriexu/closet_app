@@ -14,11 +14,17 @@
 #
 
 class User < ActiveRecord::Base
-  has_many :items
-  has_many :outfits
-  validates :name, :email, :city, :state, :password_digest, presence: true
-  validates :email, uniqueness: true
-  has_secure_password
+  # Associations
+  has_many :accounts, :dependent => :destroy
+
+  # Instance Methods
+  def has_facebook?
+    accounts.where(provider: 'facebook').any?
+  end
+
+  def has_instagram?
+    accounts.where(provider: 'instagram').any?
+  end
 
   def is_admin?
      (self.role =~ /admin/) == 0 ? true : false
